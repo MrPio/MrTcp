@@ -1,0 +1,7 @@
+# ninja log v5
+0	68	693018472	CMakeFiles/convertImage.dir/C_/Users/MrPio/StudioProjects/mr_tcp/ios/Classes/converter.c.o	7964f04c69479482
+69	136	693018472	C:/Users/MrPio/StudioProjects/mr_tcp/build/app/intermediates/cxx/Debug/2r165l06/obj/x86_64/libconvertImage.so	38031059fd0dbb83
+2	67	693018996	CMakeFiles/convertImage.dir/C_/Users/MrPio/StudioProjects/mr_tcp/ios/Classes/converter.c.o	7964f04c69479482
+67	137	693018996	C:/Users/MrPio/StudioProjects/mr_tcp/build/app/intermediates/cxx/Debug/2r165l06/obj/x86_64/libconvertImage.so	38031059fd0dbb83
+2	64	693019051	CMakeFiles/convertImage.dir/C_/Users/MrPio/StudioProjects/mr_tcp/ios/Classes/converter.c.o	7964f04c69479482
+65	127	693019051	C:/Users/MrPio/StudioProjects/mr_tcp/build/app/intermediates/cxx/Debug/2r165l06/obj/x86_64/libconvertImage.so	38031059fd0dbb83

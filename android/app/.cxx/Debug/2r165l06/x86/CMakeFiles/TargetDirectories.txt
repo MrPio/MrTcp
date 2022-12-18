@@ -1,0 +1,3 @@
+C:/Users/MrPio/StudioProjects/mr_tcp/android/app/.cxx/Debug/2r165l06/x86/CMakeFiles/rebuild_cache.dir
+C:/Users/MrPio/StudioProjects/mr_tcp/android/app/.cxx/Debug/2r165l06/x86/CMakeFiles/convertImage.dir
+C:/Users/MrPio/StudioProjects/mr_tcp/android/app/.cxx/Debug/2r165l06/x86/CMakeFiles/edit_cache.dir

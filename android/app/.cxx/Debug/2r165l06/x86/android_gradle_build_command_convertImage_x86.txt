@@ -1,0 +1,7 @@
+Executable : C:\Users\MrPio\AppData\Local\Android\sdk\cmake\3.18.1\bin\ninja.exe
+arguments : 
+-C
+C:\Users\MrPio\StudioProjects\mr_tcp\android\app\.cxx\Debug\2r165l06\x86
+convertImage
+jvmArgs : 
+

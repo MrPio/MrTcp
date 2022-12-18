@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:mr_tcp/Views/login_page.dart';
+import 'package:mr_tcp/Views/webcam_streaming.dart';
+
+import 'API/web_socket_manager.dart';
 
 void main() {
-  runApp(const MyApp());
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final webSocketManager=WebSocketManager();
+  MyApp({super.key});
 
   // This widget is the root of your application.
   @override
@@ -15,7 +20,8 @@ class MyApp extends StatelessWidget {
       title: 'MrTcp by MrPio',
       theme: ThemeData.dark(),
       routes: <String, WidgetBuilder>{
-        '/': (BuildContext context) => LoginPage(),
+        '/': (BuildContext context) => LoginPage(webSocketManager),
+        '/webcam_streaming':(BuildContext context)=>WebcamStreaming(webSocketManager)
       },
     );
   }
