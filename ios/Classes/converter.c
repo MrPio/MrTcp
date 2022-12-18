@@ -2,6 +2,7 @@
 #include "converter.h"
 #include <math.h>
 #include <stdlib.h>
+#include <android/log.h>
 
 int clamp(int lower, int higher, int val){
     if(val < lower)
@@ -16,16 +17,24 @@ int getRotatedImageByteIndex(int x, int y, int rotatedImageWidth){
     return rotatedImageWidth*(y+1)-(x+1);
 }
 
-uint32_t *convertImage(uint8_t *plane0, uint8_t *plane1, uint8_t *plane2, int bytesPerRow, int bytesPerPixel, int width, int height){
+
+
+void print() {
+      __android_log_print(ANDROID_LOG_DEBUG, "flutter", "Hello world! You can use %s", "formatting");
+}
+
+uint32_t * convertImage(uint8_t *plane0, uint8_t *plane1, uint8_t *plane2, int bytesPerRow, int bytesPerPixel, int width, int height){
+     print();
      int hexFF = 255;
     int x, y, uvIndex, index;
     int yp, up, vp;
     int r, g, b;
     int rt, gt, bt;
+    print();
 
-    uint32_t *image = malloc(sizeof(uint32_t) * (width * height));
+   // uint32_t *image = malloc(sizeof(uint32_t) * (width * height));
 
-    for(x = 0; x < width; x++){
+   /* for(x = 0; x < width; x++){
         for(y = 0; y < height; y++){
 
             uvIndex = bytesPerPixel * ((int) floor(x/2)) + bytesPerRow * ((int) floor(y/2));
@@ -40,8 +49,9 @@ uint32_t *convertImage(uint8_t *plane0, uint8_t *plane1, uint8_t *plane2, int by
             r = clamp(0, 255, rt);
             g = clamp(0, 255, gt);
             b = clamp(0, 255, bt);
-            image[getRotatedImageByteIndex(y, x, height)] = (hexFF << 24) | (b << 16) | (g << 8) | r;
+
+            image[index/*getRotatedImageByteIndex(y, x, height)] = (hexFF << 24) | (b << 16) | (g << 8) | r;
         }
-    }
-    return image;
+    }*/
+    return malloc(1);
 }

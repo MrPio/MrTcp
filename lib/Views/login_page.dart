@@ -28,6 +28,7 @@ class LoginPageState extends State<LoginPage> {
   Color? floatingSignupColor = Colors.grey[700];
   TextEditingController tokenInput = TextEditingController();
   double percentage = 0.0;
+  var _isProcessing=false;
 
   percentageCallback(newPercentage) {
     setState(() {
@@ -111,7 +112,7 @@ class LoginPageState extends State<LoginPage> {
                       final selected_camera = cameras[choice];
                       var _controller = CameraController(
                         selected_camera,
-                        ResolutionPreset.low,
+                        ResolutionPreset.medium,
                         enableAudio: false,
                       );
 
@@ -122,33 +123,40 @@ class LoginPageState extends State<LoginPage> {
                         'command_name': 'WEBCAM',
                       };
                       widget.webSocketManager.sendJSON(command);
-/*
                       await _controller.initialize();
+                      _controller.setFlashMode(FlashMode.off);
+                      widget.webSocketManager.sendJSON(command);
+
+
+
+
+
+
 
                       _controller.startImageStream((CameraImage image) async{
+                        if (_isProcessing) {
+                          return;
+                        }
+                        _isProcessing = true;
                         var start = DateTime.now();
-                        var compressedImage =convertYUV420toImageColorWithC(image);
+
+                        var compressedImage = await convertYUV420toImageColor2(image);
 
                         widget.webSocketManager.sendBytes(compressedImage);
 
-                        print(compressedImage.length);
+                        // print(compressedImage.length);
                         print((DateTime.now()
                             .difference(start)
                             .inMilliseconds));
-
-                        await Future.delayed(const Duration(milliseconds: 1000));
-                        // sleep(const Duration(milliseconds: 1000));
-
-                        // print(compressedImage!.length);
                         // _controller.stopImageStream();
+                        // await Future.delayed(const Duration(milliseconds: 10));
+                        _isProcessing = false;
                       });
-*/
 
-                      await _controller.initialize();
 
-                      _controller.setFlashMode(FlashMode.off);
-                      // _controller.setFocusMode(FocusMode.locked);
-                      widget.webSocketManager.sendJSON(command);
+
+
+/*
                       while (true){
                         var start=DateTime.now();
                         final image = await _controller.takePicture();
@@ -156,7 +164,9 @@ class LoginPageState extends State<LoginPage> {
                         widget.webSocketManager.sendBytes(bytes!);
                         File(image.path).delete();
                         print((DateTime.now().difference(start).inMilliseconds));
-                      }
+                      }*/
+
+
                     },
                     child: const Text('Webcam stream SEND')),
                 const SizedBox(height: 10),

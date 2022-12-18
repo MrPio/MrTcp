@@ -1,0 +1,7 @@
+ninja: Entering directory `C:\Users\MrPio\StudioProjects\mr_tcp\android\app\.cxx\RelWithDebInfo\5g4j3p40\arm64-v8a'
+[1/2] Building C object CMakeFiles/convertImage.dir/C_/Users/MrPio/StudioProjects/mr_tcp/ios/Classes/converter.c.o
+C:/Users/MrPio/StudioProjects/mr_tcp/ios/Classes/converter.c:53:24: warning: '/*' within block comment [-Wcomment]
+            image[index/*getRotatedImageByteIndex(y, x, height)] = (hexFF << 24) | (b << 16) | (g << 8) | r;
+                       ^
+1 warning generated.
+[2/2] Linking C shared library C:\Users\MrPio\StudioProjects\mr_tcp\build\app\intermediates\cxx\RelWithDebInfo\5g4j3p40\obj\arm64-v8a\libconvertImage.so
