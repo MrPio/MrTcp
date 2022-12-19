@@ -55,5 +55,5 @@ Future<int> showSingleChoiceDialog(
                 ));
           }),
         );
-      });
+      })??-1;
 }

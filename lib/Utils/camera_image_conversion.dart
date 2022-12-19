@@ -9,7 +9,7 @@ import 'package:image/image.dart';
 import 'package:mr_tcp/method_channelling/yuv_chanelling.dart';
 import 'package:path_provider/path_provider.dart';
 
-typedef convert_func = Pointer<Uint32> Function(
+/*typedef convert_func = Pointer<Uint32> Function(
     Pointer<Uint8>, Pointer<Uint8>, Pointer<Uint8>, Int32, Int32, Int32, Int32);
 typedef Convert = Pointer<Uint32> Function(
     Pointer<Uint8>, Pointer<Uint8>, Pointer<Uint8>, int, int, int, int);
@@ -18,12 +18,12 @@ final DynamicLibrary convertImageLib = Platform.isAndroid
     ? DynamicLibrary.open("libconvertImage.so")
     : DynamicLibrary.process();
 
-Convert? conv;
+Convert? conv;*/
 
 YuvChannelling _yuvChannelling = YuvChannelling();
 
 
-init() {
+/*init() {
   // Load the convertImage() function from the library
   // conv=convertImageLib.lookupFunction('convertImage');
   conv = convertImageLib
@@ -173,7 +173,7 @@ Future<Uint8List?> convertYUV420toImageColor(CameraImage image) async {
     print(">>>>>>>>>>>> ERROR:" + e.toString());
   }
   return null;
-}
+}*/
 
 Future<Uint8List> convertYUV420toImageColor2(CameraImage cameraImage) async {
   return await _yuvChannelling.yuv_transform(cameraImage);

@@ -4,13 +4,15 @@ import 'package:mr_tcp/Views/webcam_streaming.dart';
 
 import 'API/web_socket_manager.dart';
 
+
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  final webSocketManager=WebSocketManager();
+  static WebSocketManager webSocketManagerInstance=WebSocketManager();
+  final webSocketManager=webSocketManagerInstance;
   MyApp({super.key});
 
   // This widget is the root of your application.

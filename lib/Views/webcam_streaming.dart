@@ -57,18 +57,18 @@ class WebcamStreamingState extends State<WebcamStreaming> {
       DeviceOrientation.landscapeRight,
       DeviceOrientation.landscapeLeft,
     ]);
-    callback(Uint8List bytes){
+/*    callback(Uint8List bytes){
       setState(() {veryOldFrame=oldFrame;});
       setState(() {oldFrame=frame;});
       frame=Image.memory(bytes);
       setState(() {});
     }
-    widget.webSocketManager.subscribeOpenHandler(callback);
+    widget.webSocketManager.subscribeOpenHandler(callback);*/
   }
 
   @override
   void dispose() {
-    widget.webSocketManager.unsubscribeOpenHandler();
+    // widget.webSocketManager.unsubscribeOpenHandler();
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
     ]);
