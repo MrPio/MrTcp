@@ -15,7 +15,7 @@ abstract class SendOpenHandler{
     isOpen=true;
   }
 
-  stop(){
+  stop()async{
     isOpen=false;
   }
 }

@@ -186,11 +186,10 @@ class LoginPageState extends State<LoginPage> {
         return;
       }
     }
-    var command = {
-      'command_name': 'WEBCAM_SEND',
-      'camera': choice,
-      'resolution': 'medium'
-    };
+      var command = {
+        'command_name': 'WEBCAM_SEND',
+        'camera': choice,
+      };
     await widget.webSocketManager.openStream(command);
     setState(() {});
 
@@ -237,7 +236,7 @@ class LoginPageState extends State<LoginPage> {
   void stopCameraStream() async{
     var command = {
       'type':'command',
-      'command_name': 'WEBCAM_SEND',
+      'command_name': 'WEBCAM_RECV',
       'stop': 'true',
     };
     await widget.webSocketManager.closeStream(command);

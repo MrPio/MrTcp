@@ -25,16 +25,16 @@ class RecvFile(RecvCloseHandler):
         # controllo il checksum con quello mandatomi
         from service.main_service import MainService
         if not MainService.checksum_check.check(msg, checksum):
-            print('!!!!!!!!!diversi!!!!!!!!!')
+            # print('!!!!!!!!!diversi!!!!!!!!!')
             return
         self.pkg_recv += 1
 
         self.file_writer.write(msg)
         percentage = round(100 * self.pkg_recv / self.pkg_tot, 2)
-        print(f'{percentage} %')
+        # print(f'{percentage} %')
         if percentage >= 100:
             self.pkg_recv, self.pkg_tot = 0, 0
-            print(f'File closed. took ---> {(time.time_ns() - self.sharing_start) / 1000000} ms')
+            # print(f'File closed. took ---> {(time.time_ns() - self.sharing_start) / 1000000} ms')
             self.file_writer.close()
             self.current_command = None
 

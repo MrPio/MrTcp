@@ -11,7 +11,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class StoreKeyValue {
   static Future<SharedPreferences> get _prefs async {
     final sharedPreferences = await SharedPreferences.getInstance();
-    print(sharedPreferences.getKeys());
+    // print(sharedPreferences.getKeys());
     return sharedPreferences;
   }
 
@@ -106,7 +106,7 @@ class StoreKeyValue {
     Directory? tempDir = await getExternalStorageDirectory();
     String tempPath = tempDir?.path??'';
     var filePath = tempPath + '/$name';
-    print(filePath);
+    // print(filePath);
 
     // the data
     var bytes = ByteData.view(data.buffer);

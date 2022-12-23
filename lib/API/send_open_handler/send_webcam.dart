@@ -3,28 +3,24 @@ import 'package:mr_tcp/API/send_open_handler/send_open_handler.dart';
 import 'package:mr_tcp/hardware/webcam/webcam_manger.dart';
 
 class SendWebcam extends SendOpenHandler {
-  WebcamManager? webcamManager;
-
-  SendWebcam();
-
-  SendWebcam.from(this.webcamManager);
+  static ResolutionPreset resolutionPreset=ResolutionPreset.medium;
+  WebcamManager get _webcamManager => WebcamManager.getInstance();
 
   @override
   initialize(Map<String, dynamic> params) async {
     super.initialize(params);
-    final cameras = await availableCameras();
+    var cameras = await availableCameras();
+    // final resolution = ResolutionPreset.values
+    //     .firstWhere((e) => e.name == params['resolution']);
 
-    var cameraController = CameraController(
-        cameras[params['camera']],
-        ResolutionPreset.values
-            .firstWhere((e) => e.name == params['resolution']));
-    webcamManager = WebcamManager(cameraController);
+    _webcamManager.cameraController =
+        CameraController(cameras[params['camera']], resolutionPreset);
   }
 
   @override
   open() {
     super.open();
-    webcamManager!.open();
+    _webcamManager.open();
   }
 
   @override
@@ -39,8 +35,8 @@ class SendWebcam extends SendOpenHandler {
   }
 
   @override
-  stop() {
+  stop() async {
     super.stop();
-    webcamManager!.close();
+    await _webcamManager.close();
   }
 }

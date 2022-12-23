@@ -11,8 +11,7 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-  static WebSocketManager webSocketManagerInstance=WebSocketManager();
-  final webSocketManager=webSocketManagerInstance;
+  WebSocketManager get webSocketManager=>WebSocketManager.getInstance();
   MyApp({super.key});
 
   // This widget is the root of your application.

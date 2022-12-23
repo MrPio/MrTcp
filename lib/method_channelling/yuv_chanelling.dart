@@ -4,6 +4,7 @@ import 'package:camera/camera.dart';
 import 'package:flutter/services.dart';
 
 class YuvChannelling {
+  static int jpegQuality=20;
   MethodChannel platform =
       const MethodChannel('com.mrpio.mr_tcp.yuv_transform/yuv');
 
@@ -28,7 +29,8 @@ class YuvChannelling {
       'platforms': data,
       'height': image.height,
       'width': image.width,
-      'strides': strides
+      'strides': strides,
+      'quality':jpegQuality
     });
 
     return image_jpeg;

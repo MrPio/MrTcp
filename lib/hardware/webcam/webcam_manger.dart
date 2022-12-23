@@ -1,31 +1,35 @@
-import 'dart:typed_data';
-
 import 'package:camera/camera.dart';
+import 'package:flutter/foundation.dart';
 
 import '../../API/web_socket_manager.dart';
 import '../../Utils/camera_image_conversion.dart';
-import '../../main.dart';
 
 class WebcamManager {
-  CameraController? _cameraController;
-  WebSocketManager? webSocketManager;
+  static WebcamManager? _instance;
+  WebSocketManager get  _webSocketManager=>WebSocketManager.getInstance();
+  CameraController? cameraController;
   bool _isProcessing = false;
   int pkgSent = 0;
 
-  WebcamManager(this._cameraController);
+  WebcamManager._();
+
+  static WebcamManager getInstance(){
+    _instance??=WebcamManager._();
+    return _instance!;
+  }
 
   close() async{
-    await _cameraController!.stopImageStream();
-    await _cameraController!.dispose();
-    _cameraController = null;
+    await cameraController!.stopImageStream();
+    await cameraController!.dispose();
+    cameraController = null;
   }
 
   open() async {
-    await _cameraController!.initialize();
-    _cameraController!.setFlashMode(FlashMode.off);
+    await cameraController!.initialize();
+    cameraController!.setFlashMode(FlashMode.off);
 
     pkgSent=0;
-    _cameraController!.startImageStream((CameraImage image) async {
+    cameraController!.startImageStream((CameraImage image) async {
       if (_isProcessing) {
         return;
       }
@@ -33,19 +37,22 @@ class WebcamManager {
       var start = DateTime.now();
       var compressedImage = await convertYUV420toImageColor2(image);
 
-      MyApp.webSocketManagerInstance.sendBytes(compressedImage);
+      _webSocketManager.sendBytes(compressedImage);
       ++pkgSent;
 
       var elapsedMillis = DateTime.now().difference(start).inMilliseconds;
-      print('elapsed --> $elapsedMillis ms');
       if (elapsedMillis < 18) {
         await Future.delayed(Duration(milliseconds: 17 - elapsedMillis));
       }
 
-      print('pakcage DIFF --> ${pkgSent-WebSocketManager.pingCount}');
-      if(pkgSent-WebSocketManager.pingCount>16){
-        print('******** ${pkgSent-WebSocketManager.pingCount>16} ********');
-        await Future.delayed(const Duration(milliseconds: 200));
+      if (kDebugMode) {
+        print('$elapsedMillis ms | package DIFF --> ${pkgSent-WebSocketManager.pingCount}');
+      }
+      while(pkgSent-WebSocketManager.pingCount>8){
+        if (kDebugMode) {
+          print('******** waiting ********');
+        }
+        await Future.delayed(const Duration(milliseconds: 150));
       }
 
       _isProcessing = false;

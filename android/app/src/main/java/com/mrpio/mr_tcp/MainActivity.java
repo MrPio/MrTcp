@@ -33,9 +33,10 @@ public class MainActivity extends FlutterActivity {
                                     int[] strides = call.argument("strides");
                                     int width = call.argument("width");
                                     int height = call.argument("height");
+                                    int quality = call.argument("quality");
 
                                     try {
-                                        byte[] data = YuvConverter.NV21toJPEG(YuvConverter.YUVtoNV21(bytesList, strides, width, height), width, height, 20);
+                                        byte[] data = YuvConverter.NV21toJPEG(YuvConverter.YUVtoNV21(bytesList, strides, width, height), width, height, quality);
 /*
                                         Bitmap bitmapRaw = BitmapFactory.decodeByteArray(data, 0, data.length);
 

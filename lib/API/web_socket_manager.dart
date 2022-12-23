@@ -6,6 +6,8 @@ import 'dart:typed_data';
 import 'package:crypto/crypto.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
+import 'package:mr_tcp/API/command/command.dart';
 import 'package:mr_tcp/API/recv_close_handler/recv_close_handler.dart';
 import 'package:mr_tcp/API/recv_open_handler/recv_open_handler.dart';
 import 'package:mr_tcp/API/send_close_handler/send_close_handler.dart';
@@ -15,31 +17,49 @@ import 'package:mr_tcp/Utils/SnackbarGenerator.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:web_socket_channel/status.dart' as status;
 
+import 'command/webcam_flash.dart';
+import 'command/webcam_quality.dart';
+import 'command/webcam_resolution.dart';
+import 'command/webcam_zoom.dart';
+
 class WebSocketManager {
+  static WebSocketManager? _instance;
   static const wsUrl = 'wss://mrpio-mrpowermanager.onrender.com/ws/';
   static const packetSize = 800000;
   Function(Uint8List bytes) openHandlerCallback = (_) {};
-
-  WebSocketChannel? channel;
   bool connected = false;
   static int pingCount = 0;
   Map<String, dynamic>? currentCommand, lastJson;
+  WebSocketChannel? channel;
 
-  //HANDLERS
+  WebSocketManager._();
+
+  static WebSocketManager getInstance() {
+    _instance ??= WebSocketManager._();
+    return _instance!;
+  }
+
+  //********** HANDLERS ****************************************
   Map<String, RecvCloseHandler> recvCloseHandlers = {
     // 'FILE_RECV': RecvFile(),
   };
-
   Map<String, RecvOpenHandler> recvOpenHandlers = {
     // 'WEBCAM_RECV': RecvWebcam(),TODO
   };
-
   Map<String, SendCloseHandler> sendCloseHandlers = {};
-
   Map<String, SendOpenHandler> sendOpenHandlers = {
     'WEBCAM_SEND': SendWebcam(),
   };
 
+  //********** HANDLERS ****************************************
+  Map<String, Command> commands = {
+    'WEBCAM_ZOOM': WebcamZoom(),
+    'WEBCAM_FLASH': WebcamFlash(),
+    'WEBCAM_RESOLUTION': WebcamResolution(),
+    'WEBCAM_QUALITY':WebcamQuality(),
+  };
+
+  //********** CONNECTION STATUS *******************************
   connect(BuildContext context, String token) {
     channel = WebSocketChannel.connect(Uri.parse(wsUrl + token));
     connected = true;
@@ -51,22 +71,16 @@ class WebSocketManager {
     });
   }
 
-  processJson(Map<String, dynamic> json) {
-    lastJson = json;
-    if (json['type'] == 'command') {
-      currentCommand = json;
-
-      //initialize the handler if it is a "send/open" one
-      if (sendOpenHandlers.containsKey(json['command_name'])) {
-        if (json.containsKey('stop')) {
-          closeStream(json);
-        } else {
-          openStream(json);
-        }
-      }
-    }
+  disconnect() {
+    channel?.sink.close(status.goingAway);
+    connected = false;
   }
 
+  bool isConnected() {
+    return connected;
+  }
+
+  //********** INCOMING DATA ***********************************
   openStream(Map<String, dynamic> cmd) async {
     var cmdName = cmd['command_name'];
     var handler = sendOpenHandlers[cmdName];
@@ -76,17 +90,45 @@ class WebSocketManager {
   }
 
   closeStream(Map<String, dynamic> cmd) async {
-    await sendOpenHandlers[cmd['command_name']]?.stop();
     //lo rimando perchè non so se è il telefono che ha stoppato oppure il pc che lo ha richiesto
     //nel primo caso, devo comunicare lo stop al pc
     sendJSON(cmd);
+
+    //need to change the name due to the change of the point of view between sender and receiver
+    await sendOpenHandlers[
+            cmd['command_name'].toString().replaceFirst('RECV', 'SEND')]
+        ?.stop();
+  }
+
+  processJson(Map<String, dynamic> json) {
+    if (kDebugMode) {
+      print(json);
+    }
+    lastJson = json;
+    if (json['type'] == 'command') {
+      currentCommand = json;
+
+      if (json.containsKey('stop')) {
+        currentCommand = null;
+      }
+      //If i received an SEND_OPEN i need to open or close the stream here
+      if (sendOpenHandlers.containsKey(json['command_name'])) {
+        if (json.containsKey('stop')) {
+          closeStream(json);
+        } else {
+          openStream(json);
+        }
+      } else if (commands.containsKey(json['command_name'])) {
+        commands[json['command_name']]!.execute(json);
+      }
+    }
   }
 
   processString(String str) {
-    if (str=='PKG_RECV'){
-      pingCount+=1;
+    if (str == 'PKG_RECV') {
+      pingCount += 1;
     }
-    print('recived --> $str');
+    // print('recived --> $str');
     //TODO SNACKBAR WITH CALLBACK
   }
 
@@ -111,6 +153,9 @@ class WebSocketManager {
         processJson(convert.jsonDecode(str));
         return;
       } catch (e) {
+        if (currentCommand != null) {
+          return;
+        }
         // print(e);
       }
       //is string
@@ -123,15 +168,7 @@ class WebSocketManager {
     processBytes(bytes);
   }
 
-  disconnect() {
-    channel?.sink.close(status.goingAway);
-    connected = false;
-  }
-
-  bool isConnected() {
-    return connected;
-  }
-
+  //********** SENDING DATA ************************************
   sendJSON(Map<String, dynamic> json) {
     channel?.sink.add(utf8.encode(jsonEncode(json)));
   }
@@ -163,7 +200,7 @@ class WebSocketManager {
       channel?.sink.add(bytes);
       await Future.delayed(const Duration(milliseconds: 100));
       percentageCallback((i + 1) / packets);
-      print('passo--->$i');
+      // print('passo--->$i');
     }
   }
 
