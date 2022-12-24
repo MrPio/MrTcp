@@ -11,6 +11,8 @@ import 'package:mr_tcp/API/command/command.dart';
 import 'package:mr_tcp/API/recv_close_handler/recv_close_handler.dart';
 import 'package:mr_tcp/API/recv_open_handler/recv_open_handler.dart';
 import 'package:mr_tcp/API/send_close_handler/send_close_handler.dart';
+import 'package:mr_tcp/API/send_open_handler/send_gyroscope.dart';
+import 'package:mr_tcp/API/send_open_handler/send_microphone.dart';
 import 'package:mr_tcp/API/send_open_handler/send_open_handler.dart';
 import 'package:mr_tcp/API/send_open_handler/send_webcam.dart';
 import 'package:mr_tcp/Utils/SnackbarGenerator.dart';
@@ -49,6 +51,8 @@ class WebSocketManager {
   Map<String, SendCloseHandler> sendCloseHandlers = {};
   Map<String, SendOpenHandler> sendOpenHandlers = {
     'WEBCAM_SEND': SendWebcam(),
+    'MIC_SEND': SendMicrophone(),
+    'GYRO_SEND': SendGyroscope(),
   };
 
   //********** HANDLERS ****************************************
@@ -171,6 +175,10 @@ class WebSocketManager {
   //********** SENDING DATA ************************************
   sendJSON(Map<String, dynamic> json) {
     channel?.sink.add(utf8.encode(jsonEncode(json)));
+  }
+
+  sendString(String string) {
+    channel!.sink.add(utf8.encode(string));
   }
 
   sendBytes(Uint8List bytes) {

@@ -13,6 +13,7 @@ import 'package:mr_tcp/Views/webcam_streaming.dart';
 import '../API/web_socket_manager.dart';
 import '../Utils/camera_image_conversion.dart';
 import '../Utils/input_dialog.dart';
+import '../hardware/microphone/microphone_manager.dart';
 import 'Templates/dialog_single_choice.dart';
 
 class LoginPage extends StatefulWidget {
@@ -72,6 +73,7 @@ class LoginPageState extends State<LoginPage> {
                   ),
                 ),
                 const SizedBox(height: 10),
+
                 ElevatedButton(
                   onPressed: () async {
                     if (!widget.webSocketManager.isConnected()) {
@@ -119,6 +121,15 @@ class LoginPageState extends State<LoginPage> {
                     },
                     child: const Text('Send Message')),
                 const SizedBox(height: 50),
+                ElevatedButton(
+                    onPressed: () => sendMicrophoneStream(),
+                    child: const Text('Microphone stream SEND')),
+                const SizedBox(height: 10),
+                ElevatedButton(
+                    onPressed: () => sendGyroscopeStream(),
+                    child: const Text('Gyroscope stream SEND')),
+                const SizedBox(height: 10),
+
                 LinearProgressIndicator(
                   value: percentage,
                 ),
@@ -157,7 +168,7 @@ class LoginPageState extends State<LoginPage> {
     );
   }
 
-  void floatingActionButtonAction() {
+  floatingActionButtonAction() {
     if (widget.webSocketManager.isConnected()) {
       widget.webSocketManager.disconnect();
       percentage = 0;
@@ -175,7 +186,7 @@ class LoginPageState extends State<LoginPage> {
     setState(() {});
   }
 
-  void sendCameraStream() async {
+  sendCameraStream() async {
     final cameras = await availableCameras();
     var choice = 0;
     var names = cameras.map((e) => e.name).toList();
@@ -233,7 +244,7 @@ class LoginPageState extends State<LoginPage> {
                       }*/
   }
 
-  void stopCameraStream() async{
+  stopCameraStream() async{
     var command = {
       'type':'command',
       'command_name': 'WEBCAM_RECV',
@@ -244,5 +255,18 @@ class LoginPageState extends State<LoginPage> {
 /*    _cameraController!.stopImageStream();
     _cameraController!.dispose();
     _cameraController=null;*/
+  }
+
+  sendMicrophoneStream() async{
+    var command = {
+      'command_name': 'MIC_SEND',
+    };
+    await widget.webSocketManager.openStream(command);
+  }
+  sendGyroscopeStream() async{
+    var command = {
+      'command_name': 'GYRO_SEND',
+    };
+    await widget.webSocketManager.openStream(command);
   }
 }
