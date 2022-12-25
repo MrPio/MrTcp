@@ -7,6 +7,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mr_tcp/Utils/SnackbarGenerator.dart';
+import 'package:mr_tcp/Utils/StoreKeyValue.dart';
 import 'package:mr_tcp/Views/Templates/scaffold_gradient.dart';
 import 'package:mr_tcp/Views/webcam_streaming.dart';
 
@@ -44,16 +45,24 @@ class LoginPageState extends State<LoginPage> {
         appBar: AppBar(
           automaticallyImplyLeading: false,
           backgroundColor: Colors.transparent,
-          title: Text("Login page", style: GoogleFonts.lato()),
+          title: Text("Establish Connection", style: GoogleFonts.lato()),
         ),
         body: Center(
-          child: SingleChildScrollView(
+          // child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
                   "Gimme the token to connect to:",
                   style: GoogleFonts.lato(fontSize: 20),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  "Choose a keyword to identify your personal space, then use it to connect your pc.",
+                  style: GoogleFonts.lato(fontSize: 17, fontWeight: FontWeight.w300),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 20),
@@ -63,103 +72,102 @@ class LoginPageState extends State<LoginPage> {
                     textAlign: TextAlign.center,
                     controller: tokenInput,
                     decoration: const InputDecoration(
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(999)),
-                        ),
-                        hintText: 'token',
-                        icon: Icon(Icons.connected_tv, size: 36)),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(999)),
+                      ),
+                      hintText: 'token',
+                      icon: Icon(Icons.connected_tv, size: 36),
+                    ),
                     style: GoogleFonts.lato(
                         fontSize: 18, fontWeight: FontWeight.w300),
                   ),
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 45),
 
-                ElevatedButton(
-                  onPressed: () async {
-                    if (!widget.webSocketManager.isConnected()) {
-                      SnackBarGenerator.makeSnackBar(
-                          context, 'First you need to establish a connection!',
-                          color: Colors.red);
-                      return;
-                    }
-                    var file =
-                        (await FilePicker.platform.pickFiles())?.files[0];
-                    if (file == null) {
-                      return;
-                    }
-                    await widget.webSocketManager
-                        .sendFile(file, percentageCallback);
-                  },
-                  child: const Text('Send file'),
-                ),
-                const SizedBox(height: 10),
-                ElevatedButton(
-                    onPressed: () =>
-                        Navigator.pushNamed(context, '/webcam_streaming'),
-                    child: const Text('Webcam stream RECV')),
-                const SizedBox(height: 10),
-                !widget.webSocketManager.sendOpenHandlers['WEBCAM_SEND']!.isOpen
-                    ? ElevatedButton(
-                        onPressed: () {
-                          sendCameraStream();
-                        },
-                        child: const Text('Webcam stream SEND'))
-                    : ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.deepOrange),
-                        onPressed: () {
-                          stopCameraStream();
-                        },
-                        child: const Text('STOP')),
-                const SizedBox(height: 10),
-                ElevatedButton(
+/*                ElevatedButton(
                     onPressed: () async {
-                      var msg = await inputDialog(context, 'Gimme your message',
-                          'hello', Icons.message);
-                      widget.webSocketManager
-                          .sendBytes(Uint8List.fromList(utf8.encode(msg)));
+                      if (!widget.webSocketManager.isConnected()) {
+                        SnackBarGenerator.makeSnackBar(
+                            context, 'First you need to establish a connection!',
+                            color: Colors.red);
+                        return;
+                      }
+                      var file =
+                          (await FilePicker.platform.pickFiles())?.files[0];
+                      if (file == null) {
+                        return;
+                      }
+                      await widget.webSocketManager
+                          .sendFile(file, percentageCallback);
                     },
-                    child: const Text('Send Message')),
-                const SizedBox(height: 50),
-                ElevatedButton(
-                    onPressed: () => sendMicrophoneStream(),
-                    child: const Text('Microphone stream SEND')),
-                const SizedBox(height: 10),
-                ElevatedButton(
-                    onPressed: () => sendGyroscopeStream(),
-                    child: const Text('Gyroscope stream SEND')),
-                const SizedBox(height: 10),
+                    child: const Text('Send file'),
+                  ),
+                  const SizedBox(height: 10),
+                  ElevatedButton(
+                      onPressed: () =>
+                          Navigator.pushNamed(context, '/webcam_streaming'),
+                      child: const Text('Webcam stream RECV')),
+                  const SizedBox(height: 10),
+                  !widget.webSocketManager.sendOpenHandlers['WEBCAM_SEND']!.isOpen
+                      ? ElevatedButton(
+                          onPressed: () {
+                            sendCameraStream();
+                          },
+                          child: const Text('Webcam stream SEND'))
+                      : ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.deepOrange),
+                          onPressed: () {
+                            stopCameraStream();
+                          },
+                          child: const Text('STOP')),
+                  const SizedBox(height: 10),
+                  ElevatedButton(
+                      onPressed: () async {
+                        var msg = await inputDialog(context, 'Gimme your message',
+                            'hello', Icons.message);
+                        widget.webSocketManager
+                            .sendBytes(Uint8List.fromList(utf8.encode(msg)));
+                      },
+                      child: const Text('Send Message')),
+                  const SizedBox(height: 50),
+                  ElevatedButton(
+                      onPressed: () => sendMicrophoneStream(),
+                      child: const Text('Microphone stream SEND')),
+                  const SizedBox(height: 10),
+                  ElevatedButton(
+                      onPressed: () => sendGyroscopeStream(),
+                      child: const Text('Gyroscope stream SEND')),
+                  const SizedBox(height: 10),*/
 
-                LinearProgressIndicator(
-                  value: percentage,
-                ),
-                const SizedBox(height: 20),
-                Text(
-                  '${(percentage * 100).toStringAsFixed(2)} %',
-                  style: GoogleFonts.lato(fontSize: 22),
-                )
+/*                LinearProgressIndicator(
+                    value: percentage,
+                  ),
+                  const SizedBox(height: 20),
+                  Text(
+                    '${(percentage * 100).toStringAsFixed(2)} %',
+                    style: GoogleFonts.lato(fontSize: 22),
+                  )*/
               ],
             ),
           ),
+          // ),
         ),
-        floatingActionButton: Theme(
-          data: Theme.of(context).copyWith(splashColor: Colors.yellow),
-          child: Padding(
-            padding: const EdgeInsets.only(right: 8),
-            child: SizedBox(
-              width: 68,
-              height: 68,
-              child: FittedBox(
-                child: FloatingActionButton(
-                  onPressed: floatingActionButtonAction,
-                  tooltip: 'Connect',
-                  backgroundColor: !widget.webSocketManager.isConnected()
-                      ? Colors.tealAccent
-                      : Colors.redAccent,
-                  child: Icon(!widget.webSocketManager.isConnected()
-                      ? Icons.laptop_chromebook
-                      : Icons.close),
-                ),
+        floatingActionButton: Padding(
+          padding: const EdgeInsets.only(right: 8),
+          child: SizedBox(
+            width: 76,
+            height: 76,
+            child: FittedBox(
+              child: FloatingActionButton(
+                onPressed: floatingActionButtonAction,
+                tooltip: 'Connect',
+                // backgroundColor: !widget.webSocketManager.isConnected()
+                //     ? Colors.tealAccent
+                //     : Colors.redAccent,
+                child: Icon(!widget.webSocketManager.isConnected()
+                    ? Icons.wifi
+                    : Icons.close),
               ),
             ),
           ),
@@ -182,8 +190,10 @@ class LoginPageState extends State<LoginPage> {
           color: Colors.red);
       return;
     }*/
-    widget.webSocketManager.connect(context, 'mrpio1' /*tokenInput.text*/);
+    widget.webSocketManager.connect(context, tokenInput.text.trim());
+    StoreKeyValue.saveData('token', tokenInput.text.trim());
     setState(() {});
+    Navigator.popAndPushNamed(context, '/mouse_page');
   }
 
   sendCameraStream() async {
@@ -197,10 +207,10 @@ class LoginPageState extends State<LoginPage> {
         return;
       }
     }
-      var command = {
-        'command_name': 'WEBCAM_SEND',
-        'camera': choice,
-      };
+    var command = {
+      'command_name': 'WEBCAM_SEND',
+      'camera': choice,
+    };
     await widget.webSocketManager.openStream(command);
     setState(() {});
 
@@ -244,9 +254,9 @@ class LoginPageState extends State<LoginPage> {
                       }*/
   }
 
-  stopCameraStream() async{
+  stopCameraStream() async {
     var command = {
-      'type':'command',
+      'type': 'command',
       'command_name': 'WEBCAM_RECV',
       'stop': 'true',
     };
@@ -257,16 +267,30 @@ class LoginPageState extends State<LoginPage> {
     _cameraController=null;*/
   }
 
-  sendMicrophoneStream() async{
+  sendMicrophoneStream() async {
     var command = {
       'command_name': 'MIC_SEND',
     };
     await widget.webSocketManager.openStream(command);
   }
-  sendGyroscopeStream() async{
+
+  sendGyroscopeStream() async {
     var command = {
       'command_name': 'GYRO_SEND',
     };
     await widget.webSocketManager.openStream(command);
   }
+
+  @override
+  void initState() {
+    super.initState();
+    Future.delayed(const Duration(milliseconds: 200),()async{
+      if ((await StoreKeyValue.getKeys())?.contains('token')??false){
+        var token=await StoreKeyValue.readStringData('token');
+        widget.webSocketManager.connect(context, token);
+        Navigator.popAndPushNamed(context, '/mouse_page');
+      }
+    });
+  }
+
 }

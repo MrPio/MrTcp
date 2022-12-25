@@ -33,6 +33,7 @@ class WebSocketManager {
   static int pingCount = 0;
   Map<String, dynamic>? currentCommand, lastJson;
   WebSocketChannel? channel;
+  String? token;
 
   WebSocketManager._();
 
@@ -55,7 +56,7 @@ class WebSocketManager {
     'GYRO_SEND': SendGyroscope(),
   };
 
-  //********** HANDLERS ****************************************
+  //********** COMMANDS ****************************************
   Map<String, Command> commands = {
     'WEBCAM_ZOOM': WebcamZoom(),
     'WEBCAM_FLASH': WebcamFlash(),
@@ -66,6 +67,7 @@ class WebSocketManager {
   //********** CONNECTION STATUS *******************************
   connect(BuildContext context, String token) {
     channel = WebSocketChannel.connect(Uri.parse(wsUrl + token));
+    this.token=token;
     connected = true;
     channel?.sink.add(utf8.encode('app online'));
     SnackBarGenerator.makeSnackBar(
@@ -76,6 +78,7 @@ class WebSocketManager {
   }
 
   disconnect() {
+    token=null;
     channel?.sink.close(status.goingAway);
     connected = false;
   }
