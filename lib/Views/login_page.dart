@@ -9,7 +9,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:mr_tcp/Utils/SnackbarGenerator.dart';
 import 'package:mr_tcp/Utils/StoreKeyValue.dart';
 import 'package:mr_tcp/Views/Templates/scaffold_gradient.dart';
-import 'package:mr_tcp/Views/webcam_streaming.dart';
+import 'package:mr_tcp/Views/webcam_streaming_page.dart';
 
 import '../API/web_socket_manager.dart';
 import '../Utils/camera_image_conversion.dart';

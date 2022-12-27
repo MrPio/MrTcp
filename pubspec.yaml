@@ -53,6 +53,7 @@ dependencies:
   mic_stream: ^0.6.2
   sensors_plus: ^2.0.1
   flutter_sensors: ^1.0.1
+  assets_audio_player: ^3.0.6
 
 dev_dependencies:
   flutter_test:

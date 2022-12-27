@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:mr_tcp/Views/login_page.dart';
-import 'package:mr_tcp/Views/webcam_streaming.dart';
+import 'package:mr_tcp/Views/webcam_streaming_page.dart';
 
 import 'API/web_socket_manager.dart';
 import 'Views/mouse_page.dart';
@@ -30,7 +30,7 @@ class MyApp extends StatelessWidget {
           // primaryColorDark: Colors.teal,
           // primaryColor: Colors.yellow,
           // focusColor: dark ? Colors.teal : Colors.tealAccent,
-          splashColor: Colors.amber,
+          splashColor: Colors.white.withAlpha(100),
           colorScheme: ColorScheme(
               brightness: brightness,
               primary: dark ? Colors.tealAccent[400]! : Colors.teal[600]!,

@@ -8,12 +8,17 @@ import '../web_socket_manager.dart';
 class SendGyroscope extends SendOpenHandler {
   Stream<SensorEvent>? _gyroscopeStream;
   StreamSubscription<SensorEvent>? _gyroscopeStreamSubscription;
+
   WebSocketManager get _webSocketManager => WebSocketManager.getInstance();
   int pkgSent = 0;
+  String cmdValue = 'mouse';
 
   @override
-  initialize(Map<String,dynamic> params)async{
+  initialize(Map<String, dynamic> params) async {
     super.initialize(params);
+    if (params.keys.contains('value')) {
+      cmdValue = params['value'];
+    }
     _gyroscopeStream = await SensorManager().sensorUpdates(
       sensorId: Sensors.GYROSCOPE,
       interval: Sensors.SENSOR_DELAY_FASTEST,
@@ -21,20 +26,18 @@ class SendGyroscope extends SendOpenHandler {
   }
 
   @override
-  open() async{
+  open() async {
     super.open();
     _gyroscopeStreamSubscription =
-        _gyroscopeStream?.listen((sensorEvent) async{
-          ++pkgSent;
-          _webSocketManager.sendString('${
-              sensorEvent.data[0].toStringAsFixed(5)}:${
-              sensorEvent.data[1].toStringAsFixed(5)}:${
-              sensorEvent.data[2].toStringAsFixed(5)}');
-          await Future.delayed(const Duration(milliseconds: 16));
-        });
+        _gyroscopeStream?.listen((sensorEvent) async {
+      ++pkgSent;
+      _webSocketManager.sendString(
+          '${sensorEvent.data[0].toStringAsFixed(5)}:${sensorEvent.data[1].toStringAsFixed(5)}:${sensorEvent.data[2].toStringAsFixed(5)}');
+      await Future.delayed(const Duration(milliseconds: 16));
+    });
   }
 
-  double roundDouble(double value, int places){
+  double roundDouble(double value, int places) {
     num mod = pow(10.0, places);
     return ((value * mod).round().toDouble() / mod);
   }
@@ -45,7 +48,8 @@ class SendGyroscope extends SendOpenHandler {
       'type': 'command',
       'command_type': 'recv',
       'stream_type': 'open',
-      'command_name': 'GYRO_RECV'
+      'command_name': 'GYRO_RECV',
+      'value': cmdValue
     };
     return command;
   }

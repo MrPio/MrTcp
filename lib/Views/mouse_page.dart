@@ -1,9 +1,11 @@
+import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
-
 import '../API/web_socket_manager.dart';
 import '../Utils/StoreKeyValue.dart';
+import 'Templates/laser_control.dart';
+import 'Templates/mouse_control.dart';
 import 'Templates/scaffold_gradient.dart';
 
 class MousePage extends StatefulWidget {
@@ -16,7 +18,13 @@ class MousePage extends StatefulWidget {
 }
 
 class _MousePageState extends State<MousePage> {
-  bool mouseLeft = false, mouseRight = false, mouseMiddle = false;
+  bool streaming = false;
+  var _currentIndex=0;
+
+  final screens=[
+    MouseControl(),
+    LaserControl(),
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -29,135 +37,99 @@ class _MousePageState extends State<MousePage> {
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: IconButton(
                 splashColor: Theme.of(context).colorScheme.secondary,
-                onPressed: () async {
-                  if ((await StoreKeyValue.getKeys())?.contains('token') ??
-                      false) {
-                    await StoreKeyValue.removeData('token');
-                  }
-                  Navigator.popAndPushNamed(context, '/');
-                },
+                onPressed: logout,
                 icon: const Icon(Icons.logout),
               ),
             ),
+/*            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: IconButton(
+                splashColor: Theme.of(context).colorScheme.secondary,
+                onPressed: logout,
+                icon: const Icon(Icons.light_mode),
+              ),
+            ),*/
           ],
           automaticallyImplyLeading: false,
           backgroundColor: Colors.transparent,
           title: Text(widget.webSocketManager.token ?? 'Welcome',
               style: GoogleFonts.lato()),
         ),
-        body: SingleChildScrollView(
-          child: Stack(children: [
-            Image.asset(
-              'assets/mouse_skin.png',
-              fit: BoxFit.fitWidth,
+        body: screens[_currentIndex],
+        floatingActionButton: Padding(
+          padding: const EdgeInsets.only(right: 8),
+          child: SizedBox(
+            width: 76,
+            height: 76,
+            child: FittedBox(
+              child: FloatingActionButton(
+                shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(14))),
+                onPressed: streaming ? stop : start,
+                tooltip: streaming ? 'Stop' : 'Start',
+                backgroundColor:
+                    streaming ? Theme.of(context).colorScheme.error : Theme.of(context).colorScheme.secondary,
+                child: Icon(streaming ? Icons.stop : Icons.play_arrow),
+              ),
             ),
-            mouseLeft
-                ? Image.asset(
-                    'assets/mouse_skin_left.png',
-                    fit: BoxFit.fitWidth,
-                  )
-                : Container(),
-            mouseRight
-                ? Image.asset(
-                    'assets/mouse_skin_right.png',
-                    fit: BoxFit.fitWidth,
-                  )
-                : Container(),
-            mouseMiddle
-                ? Image.asset(
-                    'assets/mouse_skin_middle.png',
-                    fit: BoxFit.fitWidth,
-                  )
-                : Container(),
-            Column(
-              children: [
-                const SizedBox(
-                  height: 80,
-                ),
-                SizedBox(
-                  height: 360,
-                  child: Row(
-                    children: [
-                      Expanded(
-                        flex: 3,
-                        child: GestureDetector(
-                          onTap: onLeftClicked,
-                          onTapDown: (details) =>
-                              setState(() => mouseLeft = true),
-                          onTapUp: (details) =>
-                              setState(() => mouseLeft = false),
-                        ),
-                      ),
-                      Expanded(
-                        flex: 1,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            SizedBox(
-                              height: 240,
-                              child: GestureDetector(
-                                onTap: onMiddleClicked,
-                                onTapDown: (details) =>
-                                    setState(() => mouseMiddle = true),
-                                onTapUp: (details) =>
-                                    setState(() => mouseMiddle = false),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Expanded(
-                        flex: 3,
-                        child: GestureDetector(
-                          onTap: onRightClicked,
-                          onTapDown: (details) =>
-                              setState(() => mouseRight = true),
-                          onTapUp: (details) =>
-                              setState(() => mouseRight = false),
-                        ),
-                      )
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ]),
+          ),
+        ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+        bottomNavigationBar: BottomNavigationBar(
+          iconSize: 28,
+          showUnselectedLabels: true,
+          currentIndex: _currentIndex,
+          onTap: (index) {
+            _currentIndex = index;
+            stop();
+          },
+          selectedItemColor: Theme.of(context).colorScheme.secondary,
+          items: const [
+            BottomNavigationBarItem(icon: Icon(Icons.mouse),label: 'Mouse'),
+            BottomNavigationBarItem(icon: Icon(Icons.light_mode),label: 'Laser'),
+          ],
+
         ),
       ),
     );
   }
 
-  onLeftClicked() {
-    widget.webSocketManager
-        .sendJSON({'type': 'command', 'command_name': 'MOUSE_LEFT'});
-  }
-
-  onRightClicked() {
-    widget.webSocketManager
-        .sendJSON({'type': 'command', 'command_name': 'MOUSE_RIGHT'});
-  }
-
-  onMiddleClicked() {
-    widget.webSocketManager
-        .sendJSON({'type': 'command', 'command_name': 'MOUSE_MIDDLE'});
+  logout() async {
+    if ((await StoreKeyValue.getKeys())?.contains('token') ?? false) {
+      await StoreKeyValue.removeData('token');
+    }
+    Navigator.popAndPushNamed(context, '/');
   }
 
   @override
   void initState() {
     super.initState();
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
+  }
 
-    widget.webSocketManager.openStream({
+  start() async {
+    await widget.webSocketManager.openStream({
       'command_name': 'GYRO_SEND',
+      'value': _currentIndex==0?'mouse':'laser'
     });
+    setState(() => streaming = true);
+  }
+
+  stop() async {
+    await widget.webSocketManager.closeStream(
+        {'type': 'command', 'command_name': 'GYRO_RECV', 'stop': 'true'});
+    setState(() => streaming = false);
   }
 
   @override
   void dispose() {
     super.dispose();
-    widget.webSocketManager.closeStream(
-        {'type': 'command', 'command_name': 'GYRO_RECV', 'stop': 'true'});
-    widget.webSocketManager.disconnect();
+    exit() async {
+      await widget.webSocketManager.closeStream(
+          {'type': 'command', 'command_name': 'GYRO_RECV', 'stop': 'true'});
+      widget.webSocketManager.disconnect();
+    }
+
+    exit();
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
   }
 }
