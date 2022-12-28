@@ -3,7 +3,7 @@
 
     <uses-permission android:name="android.permission.INTERNET"/>
     <application
-        android:label="mr_tcp"
+        android:label="mr_pointer"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
