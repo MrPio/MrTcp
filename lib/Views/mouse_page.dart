@@ -19,9 +19,10 @@ class MousePage extends StatefulWidget {
 
 class _MousePageState extends State<MousePage> {
   bool streaming = false;
-  var _currentIndex=0;
+  var _currentIndex = 0;
+  var _pointerMode = 'GYRO';
 
-  final screens=[
+  final screens = [
     MouseControl(),
     LaserControl(),
   ];
@@ -37,18 +38,20 @@ class _MousePageState extends State<MousePage> {
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: IconButton(
                 splashColor: Theme.of(context).colorScheme.secondary,
-                onPressed: logout,
-                icon: const Icon(Icons.logout),
+                onPressed: swapMode,
+                icon: Icon(_pointerMode == 'GYRO'
+                    ? Icons.open_with
+                    : Icons.threesixty),
               ),
             ),
-/*            Padding(
+            Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: IconButton(
                 splashColor: Theme.of(context).colorScheme.secondary,
                 onPressed: logout,
-                icon: const Icon(Icons.light_mode),
+                icon: const Icon(Icons.logout),
               ),
-            ),*/
+            ),
           ],
           automaticallyImplyLeading: false,
           backgroundColor: Colors.transparent,
@@ -63,11 +66,13 @@ class _MousePageState extends State<MousePage> {
             height: 76,
             child: FittedBox(
               child: FloatingActionButton(
-                shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(14))),
+                shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(14))),
                 onPressed: streaming ? stop : start,
                 tooltip: streaming ? 'Stop' : 'Start',
-                backgroundColor:
-                    streaming ? Theme.of(context).colorScheme.error : Theme.of(context).colorScheme.secondary,
+                backgroundColor: streaming
+                    ? Theme.of(context).colorScheme.error
+                    : Theme.of(context).colorScheme.secondary,
                 child: Icon(streaming ? Icons.stop : Icons.play_arrow),
               ),
             ),
@@ -84,13 +89,19 @@ class _MousePageState extends State<MousePage> {
           },
           selectedItemColor: Theme.of(context).colorScheme.secondary,
           items: const [
-            BottomNavigationBarItem(icon: Icon(Icons.mouse),label: 'Mouse'),
-            BottomNavigationBarItem(icon: Icon(Icons.light_mode),label: 'Laser'),
+            BottomNavigationBarItem(icon: Icon(Icons.mouse), label: 'Mouse'),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.light_mode), label: 'Laser'),
           ],
-
         ),
       ),
     );
+  }
+
+  swapMode() async {
+    await stop();
+    _pointerMode = _pointerMode == 'GYRO' ? 'ACC' : 'GYRO';
+    // start();
   }
 
   logout() async {
@@ -100,6 +111,7 @@ class _MousePageState extends State<MousePage> {
     Navigator.popAndPushNamed(context, '/');
   }
 
+
   @override
   void initState() {
     super.initState();
@@ -108,15 +120,18 @@ class _MousePageState extends State<MousePage> {
 
   start() async {
     await widget.webSocketManager.openStream({
-      'command_name': 'GYRO_SEND',
-      'value': _currentIndex==0?'mouse':'laser'
+      'command_name': '${_pointerMode}_SEND',
+      'value': _currentIndex == 0 ? 'mouse' : 'laser'
     });
     setState(() => streaming = true);
   }
 
   stop() async {
-    await widget.webSocketManager.closeStream(
-        {'type': 'command', 'command_name': 'GYRO_RECV', 'stop': 'true'});
+    await widget.webSocketManager.closeStream({
+      'type': 'command',
+      'command_name': '${_pointerMode}_RECV',
+      'stop': 'true'
+    });
     setState(() => streaming = false);
   }
 
@@ -124,8 +139,11 @@ class _MousePageState extends State<MousePage> {
   void dispose() {
     super.dispose();
     exit() async {
-      await widget.webSocketManager.closeStream(
-          {'type': 'command', 'command_name': 'GYRO_RECV', 'stop': 'true'});
+      await widget.webSocketManager.closeStream({
+        'type': 'command',
+        'command_name': '${_pointerMode}_RECV',
+        'stop': 'true'
+      });
       widget.webSocketManager.disconnect();
     }
 

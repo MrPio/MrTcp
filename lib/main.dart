@@ -30,7 +30,7 @@ class MyApp extends StatelessWidget {
           // primaryColorDark: Colors.teal,
           // primaryColor: Colors.yellow,
           // focusColor: dark ? Colors.teal : Colors.tealAccent,
-          splashColor: Colors.white.withAlpha(100),
+          splashColor: Colors.white.withAlpha(1001  ),
           colorScheme: ColorScheme(
               brightness: brightness,
               primary: dark ? Colors.tealAccent[400]! : Colors.teal[600]!,

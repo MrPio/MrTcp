@@ -1,11 +1,7 @@
-import 'dart:convert';
-import 'dart:io';
-import 'dart:typed_data';
-
 import 'package:camera/camera.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:mr_tcp/Utils/SnackbarGenerator.dart';
 import 'package:mr_tcp/Utils/StoreKeyValue.dart';
 import 'package:mr_tcp/Views/Templates/scaffold_gradient.dart';
@@ -14,11 +10,13 @@ import 'package:mr_tcp/Views/webcam_streaming_page.dart';
 import '../API/web_socket_manager.dart';
 import '../Utils/camera_image_conversion.dart';
 import '../Utils/input_dialog.dart';
+import '../hardware/ad/ad_manager.dart';
 import '../hardware/microphone/microphone_manager.dart';
 import 'Templates/dialog_single_choice.dart';
 
 class LoginPage extends StatefulWidget {
   final WebSocketManager webSocketManager;
+  AdManager get  _adManager=>AdManager.getInstance();
 
   const LoginPage(this.webSocketManager, {super.key});
 
@@ -62,7 +60,8 @@ class LoginPageState extends State<LoginPage> {
                 const SizedBox(height: 10),
                 Text(
                   "Choose a keyword to identify your personal space, then use it to connect your pc.",
-                  style: GoogleFonts.lato(fontSize: 17, fontWeight: FontWeight.w300),
+                  style: GoogleFonts.lato(
+                      fontSize: 17, fontWeight: FontWeight.w300),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 20),
@@ -148,6 +147,14 @@ class LoginPageState extends State<LoginPage> {
                     '${(percentage * 100).toStringAsFixed(2)} %',
                     style: GoogleFonts.lato(fontSize: 22),
                   )*/
+                banner == null
+                    ? Container()
+                    : SizedBox(
+                        height: 50,
+                        child: AdWidget(
+                          ad: banner!,
+                        ),
+                      ),
               ],
             ),
           ),
@@ -184,12 +191,13 @@ class LoginPageState extends State<LoginPage> {
       SnackBarGenerator.makeSnackBar(context, 'Connection closed');
       return;
     }
-/*    if (tokenInput.text.length < 3) {
+    if (tokenInput.text.length < 3) {
       SnackBarGenerator.makeSnackBar(
           context, "Token must be at least 3 chars long!",
           color: Colors.red);
       return;
-    }*/
+    }
+    // widget._adManager.showInterstitialAd();
     widget.webSocketManager.connect(context, tokenInput.text.trim());
     StoreKeyValue.saveData('token', tokenInput.text.trim());
     setState(() {});
@@ -281,16 +289,55 @@ class LoginPageState extends State<LoginPage> {
     await widget.webSocketManager.openStream(command);
   }
 
+  BannerAd? banner;
+  InterstitialAd? interstitial;
+
+  void createBannerAd() async {
+    banner = BannerAd(
+      adUnitId: 'ca-app-pub-4240235604287847/7363917914',
+      size: AdSize.banner,
+      request: const AdRequest(),
+      listener: BannerAdListener(
+        // Called when an ad is successfully received.
+        onAdLoaded: (Ad ad) => print('${ad.runtimeType} loaded.'),
+        // Called when an ad request failed.
+        onAdFailedToLoad: (Ad ad, LoadAdError error) {
+          print('${ad.runtimeType} failed to load: $error');
+        },
+        // Called when an ad opens an overlay that covers the screen.
+        onAdOpened: (Ad ad) => print('${ad.runtimeType} opened.'),
+        // Called when an ad removes an overlay that covers the screen.
+        onAdClosed: (Ad ad) {
+          print('${ad.runtimeType} closed');
+          ad.dispose();
+          createBannerAd();
+          print('${ad.runtimeType} reloaded');
+        },
+      ),
+    );
+    await banner?.load();
+  }
+
+
+
   @override
   void initState() {
     super.initState();
-    Future.delayed(const Duration(milliseconds: 200),()async{
-      if ((await StoreKeyValue.getKeys())?.contains('token')??false){
-        var token=await StoreKeyValue.readStringData('token');
+    createBannerAd();
+    widget._adManager.initialize();
+    Future.delayed(const Duration(milliseconds: 200), () async {
+      if ((await StoreKeyValue.getKeys())?.contains('token') ?? false) {
+        var token = await StoreKeyValue.readStringData('token');
         widget.webSocketManager.connect(context, token);
         Navigator.popAndPushNamed(context, '/mouse_page');
       }
     });
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+    banner?.dispose();
+    widget._adManager.dispose();
+  }
 }

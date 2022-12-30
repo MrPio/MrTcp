@@ -11,6 +11,7 @@ import 'package:mr_tcp/API/command/command.dart';
 import 'package:mr_tcp/API/recv_close_handler/recv_close_handler.dart';
 import 'package:mr_tcp/API/recv_open_handler/recv_open_handler.dart';
 import 'package:mr_tcp/API/send_close_handler/send_close_handler.dart';
+import 'package:mr_tcp/API/send_open_handler/send_accelerometer.dart';
 import 'package:mr_tcp/API/send_open_handler/send_gyroscope.dart';
 import 'package:mr_tcp/API/send_open_handler/send_microphone.dart';
 import 'package:mr_tcp/API/send_open_handler/send_open_handler.dart';
@@ -54,6 +55,7 @@ class WebSocketManager {
     'WEBCAM_SEND': SendWebcam(),
     'MIC_SEND': SendMicrophone(),
     'GYRO_SEND': SendGyroscope(),
+    'ACC_SEND': SendAccelerometer(),
   };
 
   //********** COMMANDS ****************************************

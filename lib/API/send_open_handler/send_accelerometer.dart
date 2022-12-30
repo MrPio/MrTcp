@@ -5,9 +5,9 @@ import 'package:mr_tcp/API/send_open_handler/send_open_handler.dart';
 
 import '../web_socket_manager.dart';
 
-class SendGyroscope extends SendOpenHandler {
-  Stream<SensorEvent>? _gyroscopeStream;
-  StreamSubscription<SensorEvent>? _gyroscopeStreamSubscription;
+class SendAccelerometer extends SendOpenHandler {
+  Stream<SensorEvent>? _accelerometerStream;
+  StreamSubscription<SensorEvent>? _accelerometerStreamSubscription;
 
   WebSocketManager get _webSocketManager => WebSocketManager.getInstance();
   int pkgSent = 0;
@@ -19,21 +19,22 @@ class SendGyroscope extends SendOpenHandler {
     if (params.keys.contains('value')) {
       cmdValue = params['value'];
     }
-    _gyroscopeStream = await SensorManager().sensorUpdates(
-      sensorId: Sensors.GYROSCOPE,
-      interval: Duration(microseconds: 4000),
+    _accelerometerStream = await SensorManager().sensorUpdates(
+      sensorId: Sensors.LINEAR_ACCELERATION,
+      interval: Duration(microseconds: 16000),
     );
   }
 
   @override
   open() async {
     super.open();
-    _gyroscopeStreamSubscription =
-        _gyroscopeStream?.listen((sensorEvent) {
-      ++pkgSent;
-      _webSocketManager.sendString(
-          '${sensorEvent.data[0].toStringAsFixed(5)}:${sensorEvent.data[1].toStringAsFixed(5)}:${sensorEvent.data[2].toStringAsFixed(5)}');
-    });
+    _accelerometerStreamSubscription =
+        _accelerometerStream?.listen((sensorEvent) {
+          ++pkgSent;
+          _webSocketManager.sendString(
+              '${sensorEvent.data[0].toStringAsFixed(2)}:${sensorEvent.data[1].toStringAsFixed(2)}:${sensorEvent.data[2].toStringAsFixed(2)}'
+          );
+        });
   }
 
   @override
@@ -42,7 +43,7 @@ class SendGyroscope extends SendOpenHandler {
       'type': 'command',
       'command_type': 'recv',
       'stream_type': 'open',
-      'command_name': 'GYRO_RECV',
+      'command_name': 'ACC_RECV',
       'value': cmdValue
     };
     return command;
@@ -51,6 +52,6 @@ class SendGyroscope extends SendOpenHandler {
   @override
   stop() async {
     super.stop();
-    _gyroscopeStreamSubscription?.cancel();
+    _accelerometerStreamSubscription?.cancel();
   }
 }
