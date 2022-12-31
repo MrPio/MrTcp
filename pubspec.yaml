@@ -55,6 +55,8 @@ dependencies:
   flutter_sensors: ^1.0.1
   assets_audio_player: ^3.0.6
   google_mobile_ads: ^2.3.0
+  flutter_walkthrough_screen: ^2.0.2
+  url_launcher: ^6.1.7
 
 dev_dependencies:
   flutter_test:

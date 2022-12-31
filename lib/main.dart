@@ -5,6 +5,7 @@ import 'package:mr_tcp/Views/webcam_streaming_page.dart';
 
 import 'API/web_socket_manager.dart';
 import 'Views/mouse_page.dart';
+import 'Views/tutorial_page.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -47,7 +48,8 @@ class MyApp extends StatelessWidget {
       ),
       title: 'MrTcp by MrPio',
       routes: <String, WidgetBuilder>{
-        '/': (BuildContext context) => LoginPage(webSocketManager),
+        '/login': (BuildContext context) => LoginPage(webSocketManager),
+        '/': (BuildContext context) => TutorialPage(),
         '/mouse_page': (BuildContext context) => MousePage(webSocketManager),
         '/webcam_streaming': (BuildContext context) =>
             WebcamStreaming(webSocketManager)

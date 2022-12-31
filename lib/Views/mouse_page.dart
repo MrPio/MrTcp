@@ -1,15 +1,19 @@
+import 'dart:math';
+
 import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../API/web_socket_manager.dart';
 import '../Utils/StoreKeyValue.dart';
+import '../hardware/ad/ad_manager.dart';
 import 'Templates/laser_control.dart';
 import 'Templates/mouse_control.dart';
 import 'Templates/scaffold_gradient.dart';
 
 class MousePage extends StatefulWidget {
   final WebSocketManager webSocketManager;
+  AdManager get _adManager => AdManager.getInstance();
 
   const MousePage(this.webSocketManager, {Key? key}) : super(key: key);
 
@@ -34,7 +38,7 @@ class _MousePageState extends State<MousePage> {
         backgroundColor: Colors.transparent,
         appBar: AppBar(
           actions: [
-            Padding(
+/*            Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: IconButton(
                 splashColor: Theme.of(context).colorScheme.secondary,
@@ -43,7 +47,7 @@ class _MousePageState extends State<MousePage> {
                     ? Icons.open_with
                     : Icons.threesixty),
               ),
-            ),
+            ),*/
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: IconButton(
@@ -87,7 +91,9 @@ class _MousePageState extends State<MousePage> {
             _currentIndex = index;
             stop();
           },
+          backgroundColor: Colors.black54,
           selectedItemColor: Theme.of(context).colorScheme.secondary,
+          unselectedItemColor: Colors.grey.shade600,
           items: const [
             BottomNavigationBarItem(icon: Icon(Icons.mouse), label: 'Mouse'),
             BottomNavigationBarItem(
@@ -108,7 +114,7 @@ class _MousePageState extends State<MousePage> {
     if ((await StoreKeyValue.getKeys())?.contains('token') ?? false) {
       await StoreKeyValue.removeData('token');
     }
-    Navigator.popAndPushNamed(context, '/');
+    Navigator.popAndPushNamed(context, '/login');
   }
 
 
@@ -119,6 +125,10 @@ class _MousePageState extends State<MousePage> {
   }
 
   start() async {
+    var rdn = Random();
+    if(rdn.nextBool() && rdn.nextBool()){
+      widget._adManager.showInterstitialAd();
+    }
     await widget.webSocketManager.openStream({
       'command_name': '${_pointerMode}_SEND',
       'value': _currentIndex == 0 ? 'mouse' : 'laser'

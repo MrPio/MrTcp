@@ -13,7 +13,7 @@ class AdManager {
     return _instance!;
   }
   initialize()async{
-    _createInterstitialAd();
+    await _createInterstitialAd();
   }
 
   dispose(){
@@ -43,6 +43,10 @@ class AdManager {
   }
 
   showInterstitialAd() async{
+    int c=0;
+    while(_interstitialAd == null && c<6){
+      await Future.delayed(const Duration(milliseconds: 300));
+    }
     if (_interstitialAd == null) {
       print('Warning: attempt to show interstitial before loaded.');
       return;

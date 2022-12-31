@@ -16,7 +16,8 @@ import 'Templates/dialog_single_choice.dart';
 
 class LoginPage extends StatefulWidget {
   final WebSocketManager webSocketManager;
-  AdManager get  _adManager=>AdManager.getInstance();
+
+  AdManager get _adManager => AdManager.getInstance();
 
   const LoginPage(this.webSocketManager, {super.key});
 
@@ -147,12 +148,21 @@ class LoginPageState extends State<LoginPage> {
                     '${(percentage * 100).toStringAsFixed(2)} %',
                     style: GoogleFonts.lato(fontSize: 22),
                   )*/
-                banner == null
+                banner.length < 2
                     ? Container()
                     : SizedBox(
                         height: 50,
                         child: AdWidget(
-                          ad: banner!,
+                          ad: banner[0],
+                        ),
+                      ),
+                const SizedBox(height: 20),
+                banner.length < 2
+                    ? Container()
+                    : SizedBox(
+                        height: 50,
+                        child: AdWidget(
+                          ad: banner[1],
                         ),
                       ),
               ],
@@ -197,7 +207,7 @@ class LoginPageState extends State<LoginPage> {
           color: Colors.red);
       return;
     }
-    // widget._adManager.showInterstitialAd();
+    widget._adManager.showInterstitialAd();
     widget.webSocketManager.connect(context, tokenInput.text.trim());
     StoreKeyValue.saveData('token', tokenInput.text.trim());
     setState(() {});
@@ -289,47 +299,63 @@ class LoginPageState extends State<LoginPage> {
     await widget.webSocketManager.openStream(command);
   }
 
-  BannerAd? banner;
+  List<BannerAd> banner = [];
+  int numberOfBanner = 2;
   InterstitialAd? interstitial;
+  List<String> bannerIds = [
+    'ca-app-pub-4240235604287847/7363917914',
+    'ca-app-pub-4240235604287847/8152193894'
+  ];
 
   void createBannerAd() async {
-    banner = BannerAd(
-      adUnitId: 'ca-app-pub-4240235604287847/7363917914',
-      size: AdSize.banner,
-      request: const AdRequest(),
-      listener: BannerAdListener(
-        // Called when an ad is successfully received.
-        onAdLoaded: (Ad ad) => print('${ad.runtimeType} loaded.'),
-        // Called when an ad request failed.
-        onAdFailedToLoad: (Ad ad, LoadAdError error) {
-          print('${ad.runtimeType} failed to load: $error');
-        },
-        // Called when an ad opens an overlay that covers the screen.
-        onAdOpened: (Ad ad) => print('${ad.runtimeType} opened.'),
-        // Called when an ad removes an overlay that covers the screen.
-        onAdClosed: (Ad ad) {
-          print('${ad.runtimeType} closed');
-          ad.dispose();
-          createBannerAd();
-          print('${ad.runtimeType} reloaded');
-        },
-      ),
-    );
-    await banner?.load();
+    for (var b in banner) {
+      b.dispose();
+    }
+    banner = [];
+    for (int i = 0; i < numberOfBanner; ++i) {
+      banner.add(BannerAd(
+        adUnitId: bannerIds[i],
+        size: AdSize.banner,
+        request: const AdRequest(),
+        listener: BannerAdListener(
+          // Called when an ad is successfully received.
+          onAdLoaded: (Ad ad) => print('${ad.runtimeType} loaded.'),
+          // Called when an ad request failed.
+          onAdFailedToLoad: (Ad ad, LoadAdError error) {
+            print('${ad.runtimeType} failed to load: $error');
+          },
+          // Called when an ad opens an overlay that covers the screen.
+          onAdOpened: (Ad ad) => print('${ad.runtimeType} opened.'),
+          // Called when an ad removes an overlay that covers the screen.
+          onAdClosed: (Ad ad) {
+            print('${ad.runtimeType} closed');
+            ad.dispose();
+            createBannerAd();
+            print('${ad.runtimeType} reloaded');
+          },
+        ),
+      ));
+      await banner[i].load();
+    }
+    setState(() {});
   }
-
-
 
   @override
   void initState() {
     super.initState();
-    createBannerAd();
     widget._adManager.initialize();
+    StoreKeyValue.saveData('tutorial', true);
+
+
     Future.delayed(const Duration(milliseconds: 200), () async {
       if ((await StoreKeyValue.getKeys())?.contains('token') ?? false) {
         var token = await StoreKeyValue.readStringData('token');
         widget.webSocketManager.connect(context, token);
         Navigator.popAndPushNamed(context, '/mouse_page');
+        widget._adManager.showInterstitialAd();
+      }
+      else{
+        createBannerAd();
       }
     });
   }
@@ -337,7 +363,9 @@ class LoginPageState extends State<LoginPage> {
   @override
   void dispose() {
     super.dispose();
-    banner?.dispose();
+    for (var b in banner) {
+      b.dispose();
+    }
     widget._adManager.dispose();
   }
 }
